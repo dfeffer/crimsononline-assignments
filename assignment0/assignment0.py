@@ -192,9 +192,14 @@ def LookAwayLuigi(ntrials):
 #	 current time
 #
 # 	Pseudocode: 
-# 	1) somehow download object thing
-# 	2) go through stuff
-#	3)  
+# 	1) somehow download object thing, reading into file, reading into string
+# 	2) go through stuff, take out 3 first departures
+#	3) format departures
+#	4) cast to datetime so things can be subtracted from each other
+#	5) print data
+#
+#	NOTE1: using lists and iterating would have been a better solution.
+#	NOTE2: also, my dealing with hour changes is not very graceful here.
 
 import json
 import urllib
@@ -203,39 +208,48 @@ import time
 
 def getStops():
 	url = 'http://shuttleboy.cs50.net/api/1.2/trips?a=Quad&b=Mass+Ave+Garden+St&output=json'
-	filein = urllib.urlopen(url)
+	filein = urllib.urlopen(url)  #get data from sit
 	
-	stringdata = filein.read()
-	#print stringdata
-
-
-	stopdata = json.loads(stringdata)
+	stringdata = filein.read() #put data in string
+	
+	#make data python-usable
+	stopdata = json.loads(stringdata) 
 	format = '%H:%M:%S'
 	
-
+	#get first 3 shuttle times
 	sh1 = stopdata[0][u'departs']
-	sh1 = sh1[11:]
-	print sh1
-	shdate1 = datetime.strptime(sh1, format)
+	sh1 = sh1[11:16]
 	
 	sh2 = stopdata[1][u'departs']
-	sh2 = sh2[11:]
+	sh2 = sh2[11:16]
+
 	sh3 = stopdata[2][u'departs']
-	sh3 = sh3[11:]
+	sh3 = sh3[11:16]
+
+	#get current time
+	nowmin = time.localtime(time.time())[4]
+	nowhr = time.localtime(time.time())[3]
 	
-	shdate1 = datetime.strptime(sh1, format)
-	shdate2 = datetime.strptime(sh2, format)
-	shdate3 = datetime.strptime(sh3, format)
+	#get differences
+	diff1 = int(sh1[3:]) - nowmin
+	if diff1 < 0:
+		diff1 += 60
+	diff1 += 60 * (int(sh1[:2]) - nowhr - 1)
+
+	diff2 = int(sh2[3:]) - nowmin
+	if diff2 < 0:
+		diff2 += 60
+	diff2 += 60 * (int(sh2[:2]) - nowhr - 1)
+
+	diff3 = int(sh3[3:]) - nowmin
+	if diff3 < 0:
+		diff3 += 60
+	diff3 += 60 * (int(sh3[:2]) - nowhr)
 	
+	#print statements
+	print "Current Time:", nowhr, ":", nowmin
+	print "Next Shuttle is", diff1,"minutes from now, at", sh1
+	print "Following Shuttle is", diff2, "minutes from now, at", sh2
+	print "Shuttle after that is", diff3, "minutes from now, at", sh3
 
-#	datetime.fromtimestamp(int("1284101485")).strftime('%Y-%m-%d %H:%M:%S')
-#	tdelta = datetime.strptime(s1, FMT) - datetime.strptime(s2, FMT)
-
-	#print "Current Time:", datetime.datetime.now()
-	print "Next Shuttle:" , shdate1
-	print "Following Shuttle is" "minutes after, at", sh2
-	print "Shuttle after that is" "minutes after, at", sh3
-
-# 	print stopdata	
-	 
 getStops()
