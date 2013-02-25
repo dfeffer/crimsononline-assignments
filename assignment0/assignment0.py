@@ -251,5 +251,3 @@ def getStops():
 	print "Next Shuttle is", diff1,"minutes from now, at", sh1
 	print "Following Shuttle is", diff2, "minutes from now, at", sh2
 	print "Shuttle after that is", diff3, "minutes from now, at", sh3
-
-getStops()
