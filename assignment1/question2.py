@@ -14,7 +14,23 @@ def parse_links_regex(filename):
 
     What does it make the most sense to do here? 
     """
-    pass
+    import re
+
+    patternurls = r'(?<=<a href=\").+(?=\"\>)'
+    patterntext = r'(?<=\"\>).+(?=\</a\>)'
+    
+    f = open(filename)
+    site = f.read()
+    
+    values = re.findall(patternurls, site)
+    keys = re.findall(patterntext, site)
+    
+    dct = dict(zip(keys, values))
+
+    f.close()    
+
+    return dct
+
 
 def parse_links_xpath(filename):
     """question 2b
@@ -24,4 +40,21 @@ def parse_links_xpath(filename):
     
     Which approach is better? (Hint: http://goo.gl/mzl9t)
     """
-    pass
+    
+    from lxml.html import iterlinks
+
+    f = open(filename)
+    site = f.read()
+
+    html = iterlinks(site)
+    values = []
+    keys = []
+
+    for a in html:
+        keys.append(a[0].text)
+        values.append(a[2])
+
+    dct = dict(zip(keys, values))
+
+    f.close()
+    return dct
