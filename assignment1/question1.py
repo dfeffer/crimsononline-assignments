@@ -132,48 +132,49 @@ def common_words_safe(filename, min_chars):
     """
     try:
         f = open(filename)
+
+
+        allthings = f.read() #puts it in a string
+        f.close()
+        
+        L = []
+        word = ""
+        ct = 0
+        start = False
+        for i in allthings:
+
+            if i.isalpha() and start == False: #means we got to a new word, start new word
+                word = i.lower()
+                start = True
+                ct = 1
+
+            elif (i.isalpha() or i == '\'' or i == '-') and start == True:
+                word += i.lower()
+                ct += 1
+
+            elif not (i.isalpha() or i == '\'' or i == '-') and start == True: #means we finished a word
+                if ct >= min_chars:
+                    L.append(word)
+                word = ""
+                start = False
+
+            else: #if i not isalpha() and start == False
+                pass #do nothing, just move to next letter
+
+        Lout = sorted(list(set(L)), key=L.count, reverse = True)
+
+        Ltup = []
+        prev = Lout[0]
+        tup = (prev, Lout.count(prev))
+        
+        Ltup.append(tup)
+
+        for curr in Lout:
+            if curr != prev: # new word
+                tup = (curr, L.count(curr))
+                Ltup.append(tup)
+        
+        return Ltup
+
     except IOError:
         print('Sorry!  File {} could not be found'.format(filename))
-            break
-
-    allthings = f.read() #puts it in a string
-    f.close()
-    
-    L = []
-    word = ""
-    ct = 0
-    start = False
-    for i in allthings:
-
-        if i.isalpha() and start == False: #means we got to a new word, start new word
-            word = i.lower()
-            start = True
-            ct = 1
-
-        elif (i.isalpha() or i == '\'' or i == '-') and start == True:
-            word += i.lower()
-            ct += 1
-
-        elif not (i.isalpha() or i == '\'' or i == '-') and start == True: #means we finished a word
-            if ct >= min_chars:
-                L.append(word)
-            word = ""
-            start = False
-
-        else: #if i not isalpha() and start == False
-            pass #do nothing, just move to next letter
-
-    Lout = sorted(list(set(L)), key=L.count, reverse = True)
-
-    Ltup = []
-    prev = Lout[0]
-    tup = (prev, Lout.count(prev))
-    
-    Ltup.append(tup)
-
-    for curr in Lout:
-        if curr != prev: # new word
-            tup = (curr, L.count(curr))
-            Ltup.append(tup)
-    
-    return Ltup
